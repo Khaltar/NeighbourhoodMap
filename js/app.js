@@ -10,15 +10,16 @@ function initialize() {
 
     map = new google.maps.Map(document.getElementById('map'), {
         center: coimbra,
-        zoom: 16,
+        zoom: 18,
         disableDefaultUI: true
     });
     
 // Request for places library for nearby places of interest
+    // Most of the code comes from the google Maps API documentation
     var request = {
         location: coimbra,
-        radius: '500',
-        types: ['store', 'coffee', 'hotel','pub']
+        radius: '400',
+        types: ['store', 'café','food', 'bar']
     };
 
     service = new google.maps.places.PlacesService(map);
@@ -34,6 +35,7 @@ function callback(results, status) {
     }
 }
 
+// Function that receives the results of the callback function and adds the markers to the map.
 function createMarker(place) {
     var placeLoc = place.geometry.location;
     var marker = new google.maps.Marker({
