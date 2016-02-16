@@ -10,10 +10,18 @@
     <script src='js/app.js'></script>
 </head>
 <body>
+   <div class="search-bar">
     <form class='search'>
         <input placeholder="Filter results by name" autofocus>
         <button>Submit</button>
     </form>
+    </div>
+    
+    <div class="content">
+    <ul class="list-places">
+        <li class="place"></li>
+    </ul>
+    </div>
     <div id="map"></div>
     <script async defer src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBXeGehzCayzqOJWG56XYrst22ZQ-hUzJA&libraries=places&callback=initialize'></script>
 </body>
