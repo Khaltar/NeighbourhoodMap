@@ -5,7 +5,7 @@ var map;
 var service;
 var infowindow;
 var marker;
-
+var allMarkers = [{}];
 // Function to initialize the map API
 function initialize() {
     var coimbra = new google.maps.LatLng(40.209658,-8.419721);
@@ -34,13 +34,14 @@ function setMarkers(map) {
             title: location[0],
             animation: google.maps.Animation.DROP
         });
+        allMarkers.push(marker);
     }
 }
 
 
 function viewAppModel() {
     var self = this;
-    this.locations = ko.observableArray(locations);
+    this.locations = ko.observableArray(allMarkers);
 }
 
 ko.applyBindings(new viewAppModel());
