@@ -18,8 +18,8 @@
     </div>
     
     <div class="content">
-    <ul class="list-places">
-        <li class="place"></li>
+    <ul data-bind="foreach: locations" class="list-places">
+        <li data-bind = "text: title" class="place"></li>
     </ul>
     </div>
     <div id="map"></div>

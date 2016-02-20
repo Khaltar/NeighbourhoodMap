@@ -1,10 +1,12 @@
-'use strict'
+'use strict';
 
 // Google Maps API and Places library functions to start the map
 var map;
 var service;
 var infowindow;
+var marker;
 
+// Function to initialize the map API
 function initialize() {
     var coimbra = new google.maps.LatLng(40.209658,-8.419721);
 
@@ -13,36 +15,33 @@ function initialize() {
         zoom: 18,
         disableDefaultUI: true
     });
-    
-// Request for places library for nearby places of interest
-    // Most of the code comes from the google Maps API documentation
-    var request = {
-        location: coimbra,
-        radius: '400',
-        types: ['store', 'café','food', 'bar']
-    };
-
-    service = new google.maps.places.PlacesService(map);
-    service.nearbySearch(request, callback);
+    setMarkers(map);
 }
 
-function callback(results, status) {
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-        for (var i = 0; i < results.length; i++) {
-            var place = results[i];
-            createMarker(results[i]);
-        }
+// Hard-Coded 9 locations
+var locations = [['Cartola', 40.209705, -8.420236], ['Jardim da Sereia', 40.209861, -8.419238], ['Tapas', 40.208775, -8.419592],
+['NS Hostel & Suites', 40.210066, -8.418814], ['Noites Longas', 40.208267, -8.418208], ['Aqui Base Tango', 40.208135, -8.418752], ['Municipal Police', 40.210256, -8.422048], ['Faculty of Psychology', 40.209561, -8.422350], ['Faculty of Architecture', 40.209513,-8.423293]];
+
+// Function to set the markers on the map for the locations in the locations array
+
+function setMarkers(map) {
+    var len = locations.length;
+    for (var i = 0; i < len ; i++) {
+        var location = locations[i];
+        var marker = new google.maps.Marker({
+            position: {lat: location[1], lng: location[2]},
+            map: map,
+            title: location[0],
+            animation: google.maps.Animation.DROP
+        });
     }
 }
 
-// Function that receives the results of the callback function and adds the markers to the map.
-function createMarker(place) {
-    var placeLoc = place.geometry.location;
-    var marker = new google.maps.Marker({
-        map: map,
-        position: place.geometry.location
-    });
+
+function viewAppModel() {
+    var self = this;
+    this.locations = ko.observableArray(locations);
 }
 
-
+ko.applyBindings(new viewAppModel());
 
