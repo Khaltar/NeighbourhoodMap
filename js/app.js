@@ -39,10 +39,11 @@ function setMarkers(map) {
 }
 
 
-function viewAppModel() {
-    var self = this;
-    this.locations = ko.observableArray(allMarkers);
-}
-
-ko.applyBindings(new viewAppModel());
+$(function() {
+    function viewAppModel() {
+        var self = this;
+        this.locations = ko.observableArray(allMarkers);
+    }
+    ko.applyBindings(new viewAppModel());
+});
 
