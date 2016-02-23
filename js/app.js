@@ -75,7 +75,7 @@ $(function() {
             self.allLocations.push(new Location(location));
         });
         
-        // Adding markers to map
+        // Adding markers to map. TODO: Integrate API
         self.allLocations.forEach(function(location) {
             location.marker = new google.maps.Marker({
                 map: self.map,
@@ -96,6 +96,44 @@ $(function() {
             });
         });
         
+        // Implementing list view
+        
+        // Ko array that will have the filtered locations on the map. Default state when starting the app is with all locations visible
+        self.filteredLocations = ko.observableArray();
+        
+        self.allLocations.forEach(function(location) {
+            self.filteredLocations.push(location);
+        });
+        
+        // Implementing the search and filter functionality.
+        
+        // Getting user input in the search bar
+        
+        self.userSearch = ko.observable('');
+        
+        // Using user input text to filter the observable Array - function
+        
+        self.filterLocations = function() {
+            var textInput = self.userSearch().toLowerCase();
+            
+            // Remove everything from the filteredArray
+            
+            self.filteredLocations.removeAll();
+            
+            // Use the user input to filter locations by name
+            
+            self.allLocations.forEach(function(location) {
+                location.marker.setMap(null);
+                
+                if (location.name.toLowerCase().indexOf(textInput) > -1) {
+                    self.filteredLocations.push(location);
+                }
+            });
+            
+            self.filteredLocations.forEach(function(location) {
+                location.marker.setMap(self.map);
+            });
+        };
     }
     ko.applyBindings(new viewAppModel());
 });
