@@ -5,44 +5,97 @@ var map;
 var service;
 var infowindow;
 var marker;
-var allMarkers = [{}];
-// Function to initialize the map API
-function initialize() {
-    var coimbra = new google.maps.LatLng(40.209658,-8.419721);
 
-    map = new google.maps.Map(document.getElementById('map'), {
-        center: coimbra,
-        zoom: 18,
-        disableDefaultUI: true
-    });
-    setMarkers(map);
-}
 
 // Hard-Coded 9 locations
-var locations = [['Cartola', 40.209705, -8.420236], ['Jardim da Sereia', 40.209861, -8.419238], ['Tapas', 40.208775, -8.419592],
-['NS Hostel & Suites', 40.210066, -8.418814], ['Noites Longas', 40.208267, -8.418208], ['Aqui Base Tango', 40.208135, -8.418752], ['Municipal Police', 40.210256, -8.422048], ['Faculty of Psychology', 40.209561, -8.422350], ['Faculty of Architecture', 40.209513,-8.423293]];
 
-// Function to set the markers on the map for the locations in the locations array
+var locations = [{
+    name: 'Cartola',
+    lat: 40.209705,
+    long: -8.420236
+}, {
+    name: 'Jardim da Sereia',
+    lat: 40.209861,
+    long: -8.419238
+}, {
+    name: 'Tapas',
+    lat: 40.208775,
+    long: -8.419592
+}, {
+    name: 'NS Hostel & Suites',
+    lat: 40.210066,
+    long: -8.418814
+}, {
+    name: 'Noites Longas',
+    lat: 40.208267,
+    long: -8.418208
+}, {
+    name: 'Aqui Base Tango',
+    lat: 40.208135,
+    long: -8.418752
+}, {
+    name: 'Municipal Police',
+    lat: 40.209561,
+    long: -8.422350
+}, {
+    name: 'Faculty of Psychology',
+    lat: 40.209561,
+    long: -8.422350
+}, {
+    name: 'Faculty of Architecture',
+    lat: 40.209513,
+    long: -8.423293
+}];
 
-function setMarkers(map) {
-    var len = locations.length;
-    for (var i = 0; i < len ; i++) {
-        var location = locations[i];
-        var marker = new google.maps.Marker({
-            position: {lat: location[1], lng: location[2]},
-            map: map,
-            title: location[0],
-            animation: google.maps.Animation.DROP
-        });
-        allMarkers.push(marker);
-    }
-}
+
 
 
 $(function() {
     function viewAppModel() {
         var self = this;
-        this.locations = ko.observableArray(allMarkers);
+        var coimbra = new google.maps.LatLng(40.209658,-8.419721);
+        
+        // Function to initialize the map API
+        self.map = new google.maps.Map(document.getElementById('map'), {
+                center: coimbra,
+                zoom: 18,
+                disableDefaultUI: true
+            });
+        
+        function Location(data) {
+            this.name = data.name;
+            this.lat = data.lat;
+            this.long = data.long;
+        }
+        
+        // Empty array created to hold all places that will be added with the forEach loop through the var locations above.
+        
+        self.allLocations = [];
+        locations.forEach(function(location) {
+            self.allLocations.push(new Location(location));
+        });
+        
+        // Adding markers to map
+        self.allLocations.forEach(function(location) {
+            location.marker = new google.maps.Marker({
+                map: self.map,
+                position: {lat: location.lat, lng: location.long},
+                animation: google.maps.Animation.DROP,
+                name: location.name
+            });
+            location.marker.addListener('click', function toggleBounce() {
+                if (location.marker.getAnimation() !== null) {
+                    location.marker.setAnimation(null);
+                } else {
+                    location.marker.setAnimation(google.maps.Animation.BOUNCE);
+                }
+                // Adding a timeout function to avoid the marker bouncing forever (only 2 secs)
+                setTimeout(function() {
+                    location.marker.setAnimation(null);
+                },2000);
+            });
+        });
+        
     }
     ko.applyBindings(new viewAppModel());
 });
