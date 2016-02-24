@@ -89,7 +89,7 @@ function googleSuccess() {
         
         self.allLocations.forEach(function (location) {
             
-            var contentWindow = '<div class="infowindow">' + '<h1>' + location.name + '</h1>' + '<h2>' + location.lat + '</h2>' + '</div>';
+            var contentWindow = '<div class="infowindow">' + '<h1>' + location.name + '</h1>' + '<div class="content"></div>' + '</div>';
             
             location.marker = new google.maps.Marker({
                 map: map,
@@ -120,6 +120,16 @@ function googleSuccess() {
                     location.marker.setAnimation(null);
                 }, 2000);
             });
+            
+            // Function to call the Yelp API. Code adapted from https://discussions.udacity.com/t/how-to-make-ajax-request-to-yelp-api/13699/5
+            
+            // Helper function needed for Yelp API
+            function nonce_generate() {
+                return(Math.floor(Math.random() * 1e12).toString());
+            }
+            
+            
+            
         });
         
 
