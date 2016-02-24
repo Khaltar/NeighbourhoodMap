@@ -5,7 +5,9 @@ var service;
 var infowindow;
 var marker;
 
-
+$('.search').submit(function(event) {
+    event.preventDefault();
+});
 
 // Hard-Coded 9 locations
 
@@ -47,10 +49,14 @@ var locations = [{
     long: -8.423293
 }];
 
+// In case of no connection to the google Maps API this function runs
+function googleError() {
+    alert('Cannot estabilish connection to the Google Maps API. Please try again later');
+    $('.search').addClass('hide');
+}
 
-
-
-var googleSuccess = function () {
+// In case the google Maps API connects sucessfully, this function runs
+function googleSuccess() {
     map = new google.maps.Map(document.getElementById('map'), {
         center: {
             lat: 40.209658,
@@ -67,6 +73,9 @@ var googleSuccess = function () {
             this.name = data.name;
             this.lat = data.lat;
             this.long = data.long;
+            this.openWindow = function() {
+                this.marker.infoWindow.open(map, this.marker);
+            }
         }
 
         // Empty array created to hold all places that will be added with the forEach loop through the var locations above.
@@ -77,7 +86,11 @@ var googleSuccess = function () {
         });
 
         // Adding markers to map. TODO: Integrate API
+        
         self.allLocations.forEach(function (location) {
+            
+            var contentWindow = '<div class="infowindow">' + '<h1>' + location.name + '</h1>' + '<h2>' + location.lat + '</h2>' + '</div>';
+            
             location.marker = new google.maps.Marker({
                 map: map,
                 position: {
@@ -85,9 +98,18 @@ var googleSuccess = function () {
                     lng: location.long
                 },
                 animation: google.maps.Animation.DROP,
-                name: location.name
+                name: location.name,
+                content: contentWindow
             });
+            
+            location.marker.infoWindow = new google.maps.InfoWindow({
+                content: contentWindow,
+                position: {lat: location.lat, 
+                           lng: location.long}
+            });
+            
             location.marker.addListener('click', function toggleBounce() {
+                location.marker.infoWindow.open(map);
                 if (location.marker.getAnimation() !== null) {
                     location.marker.setAnimation(null);
                 } else {
@@ -99,6 +121,7 @@ var googleSuccess = function () {
                 }, 2000);
             });
         });
+        
 
         // Implementing list view. Code adapted from http://opensoul.org/2011/06/23/live-search-with-knockoutjs/
 

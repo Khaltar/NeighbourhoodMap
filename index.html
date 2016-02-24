@@ -21,12 +21,12 @@
     <div class="content col-md-6">
     <h2>Locations List:</h2>
     <ul data-bind="foreach: filteredLocations" class="list-places">
-        <li data-bind = "text: name" class="place"></li>
+        <li data-bind = "text: name, click:openWindow" class="place"></li>
     </ul>
     </div>
     </div>
     <div id="map"></div>
    
-    <script async defer src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBXeGehzCayzqOJWG56XYrst22ZQ-hUzJA&callback=googleSuccess'></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBXeGehzCayzqOJWG56XYrst22ZQ-hUzJA&callback=googleSuccess" onerror="googleError()"></script>
 </body>
 </html>
