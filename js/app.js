@@ -96,7 +96,7 @@ $(function() {
             });
         });
         
-        // Implementing list view
+        // Implementing list view. Code adapted from http://opensoul.org/2011/06/23/live-search-with-knockoutjs/
         
         // Ko array that will have the filtered locations on the map. Default state when starting the app is with all locations visible
         self.filteredLocations = ko.observableArray();
@@ -130,7 +130,7 @@ $(function() {
                 }
             });
             
-            self.filteredLocations.forEach(function(location) {
+            self.filteredLocations().forEach(function(location) {
                 location.marker.setMap(self.map);
             });
         };
