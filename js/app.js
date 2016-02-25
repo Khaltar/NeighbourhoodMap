@@ -26,7 +26,7 @@ var locations = [{
     lat: 40.209100,
     long: -8.420177,
     id: '4e7dc84300397c8dcfe88b65'
-    
+
 }, {
     name: 'NS Hostel & Suites',
     lat: 40.210066,
@@ -101,11 +101,11 @@ function googleSuccess() {
         });
 
         // Adding markers to map. TODO: Integrate API
-        
+
         self.allLocations.forEach(function (location) {
-            
+
             var contentWindow = '<div class="infowindow">' + '<h1>' + location.name + '</h1>' + '<div class="content"></div>' + '</div>';
-            
+
             location.marker = new google.maps.Marker({
                 map: map,
                 position: {
@@ -116,15 +116,15 @@ function googleSuccess() {
                 name: location.name,
                 content: contentWindow
             });
-            
+
             location.marker.infoWindow = new google.maps.InfoWindow({
                 content: contentWindow,
                 position: {lat: location.lat, 
                            lng: location.long}
             });
-            
+
             location.marker.addListener('click', function toggleBounce() {
-                getFourSquare();
+                getFourSquare(location);
                 location.marker.infoWindow.open(map);
                 if (location.marker.getAnimation() !== null) {
                     location.marker.setAnimation(null);
@@ -136,23 +136,23 @@ function googleSuccess() {
                     location.marker.setAnimation(null);
                 }, 2000);
             });
-            
+
             // Function to call the FourSquares API. Code adapted from https://discussions.udacity.com/t/inconsistent-results-from-foursquare/39625/7
-            
-            function getFourSquare() {
+
+            function getFourSquare(location) {
                 $.ajax({
                     url: 'https://api.foursquare.com/v2/venues/' + location.id + '?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&v=20140806',
                     sucess: function(data) {
                         console.dir(data);
                     }
-                    
+
                 }).fail(alert('Foursquare data is unavailable. Please try refreshing later.'))
             };
-            
-           
-            
+
+
+
         });
-        
+
 
         // Implementing list view. Code adapted from http://opensoul.org/2011/06/23/live-search-with-knockoutjs/
 
