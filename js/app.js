@@ -139,6 +139,7 @@ function googleSuccess() {
                 setTimeout(function () {
                     location.marker.setAnimation(null);
                 }, 2000);
+                location.marker.infoWindow.setContent('<div class="infowindow">' + '<h2>' + location.marker.name + '</h2>' + '<p>Address: ' + location.marker.address + '</p>' + '<p>Rating: ' + location.marker.rating + '</p>' + '<a href="' + location.marker.url + '">' + 'Foursquare Link' + '</a>')
             });
 
             // Function to call the FourSquares API. Code adapted from https://discussions.udacity.com/t/inconsistent-results-from-foursquare/39625/7
@@ -148,7 +149,13 @@ function googleSuccess() {
                     url: 'https://api.foursquare.com/v2/venues/' + location.id + '?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&v=20140806',
                     sucess: function(data) {
                         var result = data.response.venue;
-                        console.dir(result);
+                        location.address = result.location.address;
+                        location.url = result.canonicalUrl;
+                        location.rating = result.rating;
+                        console.log(location.address);
+                        console.log(location.url);
+                        console.log(location.rating);
+                        
                     }
 
                 }).fail(function(error) {console.log(error)});
