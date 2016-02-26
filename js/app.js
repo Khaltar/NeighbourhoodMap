@@ -30,7 +30,8 @@ var locations = [{
 }, {
     name: 'NS Hostel & Suites',
     lat: 40.210066,
-    long: -8.418814
+    long: -8.418814,
+    id: '524f2fa611d27f33d55208fd'
 }, {
     name: 'Noites Longas',
     lat: 40.208259,
@@ -124,9 +125,10 @@ function googleSuccess() {
                 position: {lat: location.lat, 
                            lng: location.long}
             });
+            
 
             location.marker.addListener('click', function toggleBounce() {
-                getFourSquare();
+                getFourSquare(location.marker);
                 location.marker.infoWindow.open(map);
                 if (location.marker.getAnimation() !== null) {
                     location.marker.setAnimation(null);
@@ -141,15 +143,16 @@ function googleSuccess() {
 
             // Function to call the FourSquares API. Code adapted from https://discussions.udacity.com/t/inconsistent-results-from-foursquare/39625/7
 
-            function getFourSquare() {
+            function getFourSquare(location) {
                 $.ajax({
-                    url: 'https://api.foursquare.com/v2/venues/' + location.marker.id + '?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&v=20140806',
+                    url: 'https://api.foursquare.com/v2/venues/' + location.id + '?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&v=20140806',
                     sucess: function(data) {
-                        console.dir(data);
+                        var result = data.response.venue;
+                        console.dir(result);
                     }
 
-                }).fail(function(error) {console.log(error)})
-            };
+                }).fail(function(error) {console.log(error)});
+            }
 
 
 
