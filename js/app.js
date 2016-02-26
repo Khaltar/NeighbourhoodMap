@@ -99,6 +99,7 @@ function googleSuccess() {
         locations.forEach(function (location) {
             self.allLocations.push(new Location(location));
         });
+        
 
         // Adding markers to map. TODO: Integrate API
 
@@ -114,7 +115,8 @@ function googleSuccess() {
                 },
                 animation: google.maps.Animation.DROP,
                 name: location.name,
-                content: contentWindow
+                content: contentWindow,
+                id: location.id
             });
 
             location.marker.infoWindow = new google.maps.InfoWindow({
@@ -124,7 +126,7 @@ function googleSuccess() {
             });
 
             location.marker.addListener('click', function toggleBounce() {
-                getFourSquare(location);
+                getFourSquare();
                 location.marker.infoWindow.open(map);
                 if (location.marker.getAnimation() !== null) {
                     location.marker.setAnimation(null);
@@ -139,14 +141,14 @@ function googleSuccess() {
 
             // Function to call the FourSquares API. Code adapted from https://discussions.udacity.com/t/inconsistent-results-from-foursquare/39625/7
 
-            function getFourSquare(location) {
+            function getFourSquare() {
                 $.ajax({
-                    url: 'https://api.foursquare.com/v2/venues/' + location.id + '?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&v=20140806',
+                    url: 'https://api.foursquare.com/v2/venues/' + location.marker.id + '?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&v=20140806',
                     sucess: function(data) {
                         console.dir(data);
                     }
 
-                }).fail(alert('Foursquare data is unavailable. Please try refreshing later.'))
+                }).fail(function(error) {console.log(error)})
             };
 
 
