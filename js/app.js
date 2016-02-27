@@ -10,7 +10,7 @@ var marker;
 var CLIENT_ID = 'DYEYVAX33FSMO55QEUBSU3OWBPHV44LPUIOOKEOTBD4XWVIM';
 var CLIENT_SECRET = 'ZI11DWJ0KASGKIWOF4WT2TVYZEVVT15QUX4M2VNYOEITINMA';
 
-// Hard-Coded 9 locations
+// Hard-Coded 9 locations for making markers in the map
 
 var locations = [{
     name: 'Cartola',
@@ -65,7 +65,7 @@ function googleError() {
     alert('Cannot estabilish connection to the Google Maps API. Please try again later');
 }
 
-// In case the google Maps API connects sucessfully, this function runs
+// In case the google Maps API connects sucessfully, this function runs initialing the map
 function googleSuccess() {
     map = new google.maps.Map(document.getElementById('map'), {
         center: {
@@ -75,15 +75,17 @@ function googleSuccess() {
         zoom: 16,
         disableDefaultUI: true
     });
-
+    
+    // Setting up the viewAppModel
     function viewAppModel() {
         var self = this;
-
+        
+        // Constructor for location data
         function Location(data) {
             this.name = data.name;
             this.lat = data.lat;
             this.long = data.long;
-            this.openWindow = function() {
+            this.openWindow = function () {
                 map.panTo(this.marker.position);
                 if (currentInfoWindow !== null) {
                     currentInfoWindow.close(map, this);
@@ -93,28 +95,30 @@ function googleSuccess() {
             };
             this.id = data.id;
         }
-        
+
         // Function to call the FourSquares API. Code adapted from https://discussions.udacity.com/t/inconsistent-results-from-foursquare/39625/7
 
         function getFourSquare(location) {
             $.ajax({
                 url: 'https://api.foursquare.com/v2/venues/' + location.id + '?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&v=20140806',
-                success: function(data) {
+                success: function (data) {
                     var result = data.response.venue;
                     location.address = result.location.address;
                     location.url = result.canonicalUrl;
                     location.rating = result.rating;
-                    if(location.rating === undefined) {
+                    // Fallback for locations that don't have rating set in FourSquare
+                    if (location.rating === undefined) {
                         location.infoWindow.setContent('<div class="infowindow">' + '<h2>' + location.name + '</h2>' + '<p>Address: ' + location.address + '</p>' + '<p>Rating: ' + 'Not avaliable' + '</p>' + '<a href="' + location.url + '">' + 'Foursquare Link' + '</a>' + '<p>Powered by Foursquare</p>');
                         location.infoWindow.open(map);
                     } else {
                         location.infoWindow.setContent('<div class="infowindow">' + '<h2>' + location.name + '</h2>' + '<p>Address: ' + location.address + '</p>' + '<p>Rating: ' + location.rating + '</p>' + '<a href="' + location.url + '">' + 'Foursquare Link' + '</a>' + '<p>Powered by Foursquare</p>');
                         location.infoWindow.open(map);
-                    } 
+                    }
                 }
 
-            }).fail(function(error) {
-                location.infoWindow.setContent('<div class="infowindow">' + '<h2>Unfortunately the FourSquare API could not be accessed at this time. Try again later!</p>' + '</div>')});
+            }).fail(function (error) {
+                location.infoWindow.setContent('<div class="infowindow">' + '<h2>Unfortunately the FourSquare API could not be accessed at this time. Try again later!</p>' + '</div>');
+            });
         }
 
         // Empty array created to hold all places that will be added with the forEach loop through the var locations above.
@@ -123,9 +127,9 @@ function googleSuccess() {
         locations.forEach(function (location) {
             self.allLocations.push(new Location(location));
         });
-        
 
-        // Adding markers to map. TODO: Integrate API
+
+        // Adding markers to map and other informations.
 
         self.allLocations.forEach(function (location) {
 
@@ -142,11 +146,13 @@ function googleSuccess() {
             });
 
             location.marker.infoWindow = new google.maps.InfoWindow({
-                position: {lat: location.lat, 
-                           lng: location.long}
+                position: {
+                    lat: location.lat,
+                    lng: location.long
+                }
             });
-            
 
+            // Adding click functionality to each marker
             location.marker.addListener('click', function toggleBounce() {
                 map.panTo(location.marker.position);
                 if (currentInfoWindow !== null) {

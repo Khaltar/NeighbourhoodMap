@@ -58,7 +58,7 @@ a {
     width: 150px;
     height: 150px;
     font-size: 14px;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     z-index: 100;
     position: fixed;
 }
@@ -68,7 +68,6 @@ a {
         font-size: 20px;
         width: 25%;
     }
-    
     .search-bar {
         width: 25%;
     }
