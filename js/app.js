@@ -3,6 +3,7 @@
 var map;
 var service;
 var infowindow;
+var currentInfoWindow = null;
 var marker;
 
 // Data for the FourSquare API
@@ -43,11 +44,6 @@ var locations = [{
     long: -8.418747,
     id: '5001ba9ae4b06407f6d277c7'
 }, {
-    name: 'Cantinas Amarelas',
-    lat: 40.208533,
-    long: -8.420981,
-    id: '5117a303e4b0631444e2b79a'
-}, {
     name: 'NB Club Coimbra',
     lat: 40.208010,
     long: -8.420422,
@@ -67,15 +63,14 @@ var locations = [{
 // In case of no connection to the google Maps API this function runs
 function googleError() {
     alert('Cannot estabilish connection to the Google Maps API. Please try again later');
-    $('.search').addClass('hide');
 }
 
 // In case the google Maps API connects sucessfully, this function runs
 function googleSuccess() {
     map = new google.maps.Map(document.getElementById('map'), {
         center: {
-            lat: 40.209658,
-            lng: -8.419721
+            lat: 40.208131,
+            lng: -8.419770
         },
         zoom: 16,
         disableDefaultUI: true
@@ -89,9 +84,37 @@ function googleSuccess() {
             this.lat = data.lat;
             this.long = data.long;
             this.openWindow = function() {
-                this.marker.infoWindow.open(map, this.marker);
+                map.panTo(this.marker.position);
+                if (currentInfoWindow !== null) {
+                    currentInfoWindow.close(map, this);
+                }
+                getFourSquare(this.marker);
+                currentInfoWindow = this.marker.infoWindow;
             };
             this.id = data.id;
+        }
+        
+        // Function to call the FourSquares API. Code adapted from https://discussions.udacity.com/t/inconsistent-results-from-foursquare/39625/7
+
+        function getFourSquare(location) {
+            $.ajax({
+                url: 'https://api.foursquare.com/v2/venues/' + location.id + '?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&v=20140806',
+                success: function(data) {
+                    var result = data.response.venue;
+                    location.address = result.location.address;
+                    location.url = result.canonicalUrl;
+                    location.rating = result.rating;
+                    if(location.rating === undefined) {
+                        location.infoWindow.setContent('<div class="infowindow">' + '<h2>' + location.name + '</h2>' + '<p>Address: ' + location.address + '</p>' + '<p>Rating: ' + 'Not avaliable' + '</p>' + '<a href="' + location.url + '">' + 'Foursquare Link' + '</a>' + '<p>Powered by Foursquare</p>');
+                        location.infoWindow.open(map);
+                    } else {
+                        location.infoWindow.setContent('<div class="infowindow">' + '<h2>' + location.name + '</h2>' + '<p>Address: ' + location.address + '</p>' + '<p>Rating: ' + location.rating + '</p>' + '<a href="' + location.url + '">' + 'Foursquare Link' + '</a>' + '<p>Powered by Foursquare</p>');
+                        location.infoWindow.open(map);
+                    } 
+                }
+
+            }).fail(function(error) {
+                location.infoWindow.setContent('<div class="infowindow">' + '<h2>Unfortunately the FourSquare API could not be accessed at this time. Try again later!</p>' + '</div>')});
         }
 
         // Empty array created to hold all places that will be added with the forEach loop through the var locations above.
@@ -106,7 +129,6 @@ function googleSuccess() {
 
         self.allLocations.forEach(function (location) {
 
-            var contentWindow = '<div class="infowindow">' + '<h1>' + location.name + '</h1>' + '<div class="content"></div>' + '</div>';
 
             location.marker = new google.maps.Marker({
                 map: map,
@@ -116,19 +138,22 @@ function googleSuccess() {
                 },
                 animation: google.maps.Animation.DROP,
                 name: location.name,
-                content: contentWindow,
                 id: location.id
             });
 
             location.marker.infoWindow = new google.maps.InfoWindow({
-                content: contentWindow,
                 position: {lat: location.lat, 
                            lng: location.long}
             });
             
 
             location.marker.addListener('click', function toggleBounce() {
+                map.panTo(location.marker.position);
+                if (currentInfoWindow !== null) {
+                    currentInfoWindow.close(map, this);
+                }
                 getFourSquare(location.marker);
+                currentInfoWindow = location.marker.infoWindow;
                 if (location.marker.getAnimation() !== null) {
                     location.marker.setAnimation(null);
                 } else {
@@ -138,36 +163,7 @@ function googleSuccess() {
                 setTimeout(function () {
                     location.marker.setAnimation(null);
                 }, 2000);
-                location.marker.infoWindow.setContent('<div class="infowindow">' + '<h2>' + location.marker.name + '</h2>' + '<p>Address: ' + location.marker.address + '</p>' + '<p>Rating: ' + location.marker.rating + '</p>' + '<a href="' + location.marker.url + '">' + 'Foursquare Link' + '</a>')
             });
-
-            // Function to call the FourSquares API. Code adapted from https://discussions.udacity.com/t/inconsistent-results-from-foursquare/39625/7
-
-            function getFourSquare(location) {
-                $.ajax({
-                    url: 'https://api.foursquare.com/v2/venues/' + location.id + '?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&v=20140806',
-                    success: function(data) {
-                        var result = data.response.venue;
-                        location.address = result.location.address;
-                        location.url = result.canonicalUrl;
-                        location.rating = result.rating;
-                        console.log(location.address);
-                        console.log(location.url);
-                        console.log(location.rating);
-                        if(location.rating === undefined) {
-                            location.infoWindow.setContent('<div class="infowindow">' + '<h2>' + location.name + '</h2>' + '<p>Address: ' + location.address + '</p>' + '<p>Rating: ' + 'Not avaliable' + '</p>' + '<a href="' + location.url + '">' + 'Foursquare Link' + '</a>' + '<p>Powered by Foursquare</p>');
-                            location.infoWindow.open(map);
-                        } else {
-                            location.infoWindow.setContent('<div class="infowindow">' + '<h2>' + location.name + '</h2>' + '<p>Address: ' + location.address + '</p>' + '<p>Rating: ' + location.rating + '</p>' + '<a href="' + location.url + '">' + 'Foursquare Link' + '</a>' + '<p>Powered by Foursquare</p>');
-                            location.infoWindow.open(map);
-                        } 
-                    }
-
-                }).fail(function(error) {
-                    location.infoWindow.setContent('<div class="infowindow">' + '<h2>Unfortunately the FourSquare API could not be accessed at this time. Try again later!</p>' + '</div>')});
-            }
-
-
 
         });
 
