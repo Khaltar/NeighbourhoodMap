@@ -77,7 +77,7 @@ function googleSuccess() {
             lat: 40.209658,
             lng: -8.419721
         },
-        zoom: 18,
+        zoom: 16,
         disableDefaultUI: true
     });
 
@@ -129,7 +129,6 @@ function googleSuccess() {
 
             location.marker.addListener('click', function toggleBounce() {
                 getFourSquare(location.marker);
-                location.marker.infoWindow.open(map);
                 if (location.marker.getAnimation() !== null) {
                     location.marker.setAnimation(null);
                 } else {
@@ -147,7 +146,7 @@ function googleSuccess() {
             function getFourSquare(location) {
                 $.ajax({
                     url: 'https://api.foursquare.com/v2/venues/' + location.id + '?client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&v=20140806',
-                    sucess: function(data) {
+                    success: function(data) {
                         var result = data.response.venue;
                         location.address = result.location.address;
                         location.url = result.canonicalUrl;
@@ -155,10 +154,17 @@ function googleSuccess() {
                         console.log(location.address);
                         console.log(location.url);
                         console.log(location.rating);
-                        
+                        if(location.rating === undefined) {
+                            location.infoWindow.setContent('<div class="infowindow">' + '<h2>' + location.name + '</h2>' + '<p>Address: ' + location.address + '</p>' + '<p>Rating: ' + 'Not avaliable' + '</p>' + '<a href="' + location.url + '">' + 'Foursquare Link' + '</a>' + '<p>Powered by Foursquare</p>');
+                            location.infoWindow.open(map);
+                        } else {
+                            location.infoWindow.setContent('<div class="infowindow">' + '<h2>' + location.name + '</h2>' + '<p>Address: ' + location.address + '</p>' + '<p>Rating: ' + location.rating + '</p>' + '<a href="' + location.url + '">' + 'Foursquare Link' + '</a>' + '<p>Powered by Foursquare</p>');
+                            location.infoWindow.open(map);
+                        } 
                     }
 
-                }).fail(function(error) {console.log(error)});
+                }).fail(function(error) {
+                    location.infoWindow.setContent('<div class="infowindow">' + '<h2>Unfortunately the FourSquare API could not be accessed at this time. Try again later!</p>' + '</div>')});
             }
 
 
