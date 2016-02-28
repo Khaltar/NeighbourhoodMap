@@ -75,26 +75,29 @@ function googleSuccess() {
         zoom: 16,
         disableDefaultUI: true
     });
-    
+
     // Setting up the viewAppModel
     function viewAppModel() {
         var self = this;
-        
+
         // Constructor for location data
         function Location(data) {
             this.name = data.name;
             this.lat = data.lat;
             this.long = data.long;
-            this.openWindow = function () {
-                map.panTo(this.marker.position);
-                if (currentInfoWindow !== null) {
-                    currentInfoWindow.close(map, this);
-                }
-                getFourSquare(this.marker);
-                currentInfoWindow = this.marker.infoWindow;
-            };
             this.id = data.id;
         }
+
+        // Function to activate marker behavior when clicking
+        Location.prototype.openWindow = function () {
+            map.panTo(this.marker.position);
+            google.maps.event.trigger(this.marker, 'click');
+            if (currentInfoWindow !== null) {
+                currentInfoWindow.close(map, this);
+            }
+            getFourSquare(this.marker);
+            currentInfoWindow = this.marker.infoWindow;
+        };
 
         // Function to call the FourSquares API. Code adapted from https://discussions.udacity.com/t/inconsistent-results-from-foursquare/39625/7
 
@@ -105,19 +108,20 @@ function googleSuccess() {
                     var result = data.response.venue;
                     location.address = result.location.address;
                     location.url = result.canonicalUrl;
-                    location.rating = result.rating;
+
                     // Fallback for locations that don't have rating set in FourSquare
-                    if (location.rating === undefined) {
-                        location.infoWindow.setContent('<div class="infowindow">' + '<h2>' + location.name + '</h2>' + '<p>Address: ' + location.address + '</p>' + '<p>Rating: ' + 'Not avaliable' + '</p>' + '<a href="' + location.url + '">' + 'Foursquare Link' + '</a>' + '<p>Powered by Foursquare</p>');
-                        location.infoWindow.open(map);
+                    if (result.rating !== undefined) {
+                        location.rating = result.rating;
                     } else {
-                        location.infoWindow.setContent('<div class="infowindow">' + '<h2>' + location.name + '</h2>' + '<p>Address: ' + location.address + '</p>' + '<p>Rating: ' + location.rating + '</p>' + '<a href="' + location.url + '">' + 'Foursquare Link' + '</a>' + '<p>Powered by Foursquare</p>');
-                        location.infoWindow.open(map);
+                        location.rating = 'Not Avaliable';
                     }
+                    location.infoWindow.setContent('<div class="infowindow">' + '<h2>' + location.name + '</h2>' + '<p>Address: ' + location.address + '</p>' + '<p>Rating: ' + location.rating + '</p>' + '<a href="' + location.url + '">' + 'Foursquare Link' + '</a>' + '<p>Powered by Foursquare</p>');
+                    location.infoWindow.open(map);
                 }
 
             }).fail(function (error) {
                 location.infoWindow.setContent('<div class="infowindow">' + '<h2>Unfortunately the FourSquare API could not be accessed at this time. Try again later!</p>' + '</div>');
+                location.infoWindow.open(map);
             });
         }
 
@@ -168,7 +172,7 @@ function googleSuccess() {
                 // Adding a timeout function to avoid the marker bouncing forever (only 2 secs)
                 setTimeout(function () {
                     location.marker.setAnimation(null);
-                }, 2000);
+                }, 1400);
             });
 
         });
